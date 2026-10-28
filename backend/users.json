@@ -1,0 +1,12 @@
+[
+  {
+    "username": "testuser",
+    "passwordHash": "$2b$10$YX55Ay5mY2rkSX35fjo.JOw4G1rfPBor6TNh0C3EM.P3Zup1mHI8C",
+    "email": "test@example.com"
+  },
+  {
+    "username": "divyaraj02",
+    "passwordHash": "$2b$10$KRRrY614GNfDXdZioW0IZerHvwlDabWnoW1Jyh1WIVzekg8fWwB9q",
+    "email": null
+  }
+]

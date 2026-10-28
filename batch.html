@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SCANLINE | Batch Queue & API Sandbox</title>
+  <meta name="description" content="Process bulk images simultaneously for deepfake detection and generate automated REST API requests for enterprise workflows.">
+  
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/pages.css">
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+  <!-- Navigation Bar -->
+  <header class="site-header">
+    <div class="container nav-wrapper">
+      <div class="brand-logo-wrapper">
+        <a href="index.html" class="brand-logo">
+          <span class="dot-indicator"></span>
+          <span>SCANLINE</span>
+        </a>
+        <span class="brand-meta-tag">IMAGE FORENSICS • v0.1</span>
+      </div>
+
+      <ul class="nav-menu" id="navMenu">
+        <li><a href="index.html" class="nav-link"><i class="fa-solid fa-radar"></i> Scanner Studio</a></li>
+        <li><a href="history.html" class="nav-link"><i class="fa-solid fa-clock-rotate-left"></i> Audit Logs</a></li>
+        <li><a href="models.html" class="nav-link"><i class="fa-solid fa-microchip"></i> Models & Curves</a></li>
+        <li><a href="batch.html" class="nav-link active"><i class="fa-solid fa-layer-group"></i> Batch & API</a></li>
+        <li><a href="about.html" class="nav-link"><i class="fa-solid fa-shield-halved"></i> Standards & FAQ</a></li>
+      </ul>
+
+      <div class="nav-actions" id="navActionsArea">
+        <button class="mobile-toggle" id="mobileToggle">
+          <i class="fa-solid fa-bars"></i>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <div class="container">
+
+      <section class="hero-section" style="text-align:left; padding: 1.5rem 0 1.5rem;">
+        <h1 class="section-title">Bulk Batch Scanner & <span class="gradient-text">API Sandbox</span></h1>
+        <p class="section-subtitle">
+          Queue multiple images for automated parallel forensic verification or test REST API payload generators.
+        </p>
+      </section>
+
+      <div class="detector-grid" style="display:grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; align-items:start;">
+        
+        <!-- Batch Upload Left Column -->
+        <div class="glass-card">
+          <h2 style="font-size:1.1rem; font-weight:700; font-family:var(--font-mono); margin-bottom:1rem;"><i class="fa-solid fa-boxes-stacked" style="color:var(--teal-glow);"></i> Bulk Image Queue</h2>
+
+          <div class="upload-dropzone" id="batchDropzone" style="padding: 2rem 1rem;">
+            <input type="file" id="batchFileInput" class="file-input-hidden" multiple accept="image/*">
+            <div class="dropzone-icon-bracket">[ + ]</div>
+            <div style="font-weight:600; font-size:1rem; color:#fff;">Select Multiple Images to Batch Scan</div>
+            <div style="font-size:0.78rem; font-family:var(--font-mono); color:var(--text-dim);">Upload up to 20 images at once</div>
+          </div>
+
+          <!-- Batch Queue File List -->
+          <div class="batch-file-list" id="batchFileList">
+            <div style="color: var(--text-muted); text-align:center; padding: 1.5rem; font-family:var(--font-mono); font-size:0.85rem;">No files selected yet.</div>
+          </div>
+
+          <!-- Progress Bar Card -->
+          <div id="batchProgressCard" style="display:none; margin-top:1.5rem; background:rgba(0,0,0,0.4); padding:1rem; border-radius:var(--radius-sm);">
+            <div id="batchProgressText" style="font-size:0.8rem; font-family:var(--font-mono); margin-bottom:0.5rem; color:var(--teal-glow);">Scanned 0 of 0 files</div>
+            <div style="width:100%; height:6px; background:rgba(255,255,255,0.1); border-radius:3px; overflow:hidden;">
+              <div id="batchProgressBar" style="width:0%; height:100%; background:var(--teal-glow); transition:width 0.3s;"></div>
+            </div>
+          </div>
+
+          <button class="btn btn-primary" id="runBatchBtn" disabled style="width:100%; margin-top:1.5rem;">
+            <i class="fa-solid fa-layer-group"></i> Run Batch Scanner Queue
+          </button>
+        </div>
+
+        <!-- Developer API Sandbox Right Column -->
+        <div class="glass-card">
+          <h2 style="font-size:1.1rem; font-weight:700; font-family:var(--font-mono); margin-bottom:1rem;"><i class="fa-solid fa-code" style="color:var(--cyan-glow);"></i> Developer API Request Generator</h2>
+          <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:1rem;">
+            Integrate deepfake image detection & PDF report generation directly into your application.
+          </p>
+
+          <div style="margin-bottom:1rem;">
+            <label style="font-size:0.78rem; font-family:var(--font-mono); color:var(--text-muted);">LANGUAGE / SDK:</label>
+            <select id="apiLangSelect" style="width:100%; background:var(--bg-input); border:1px solid var(--border-subtle); color:#fff; padding:0.4rem; border-radius:var(--radius-sm); font-size:0.8rem; font-family:var(--font-mono); margin-top:0.3rem;">
+              <option value="curl">cURL / HTTP POST</option>
+              <option value="node">Node.js (Fetch API)</option>
+              <option value="python">Python (Requests)</option>
+            </select>
+          </div>
+
+          <!-- Code Snippet Box -->
+          <div style="background:#06080d; border:1px solid var(--border-subtle); border-radius:var(--radius-sm); padding:1rem; font-family:var(--font-mono); font-size:0.78rem; color:#a6accd; overflow-x:auto;">
+            <pre id="apiCodeBlock"><code>curl -X POST https://api.scanline.ai/v1/scan \
+  -H "Authorization: Bearer sl_live_9f8a3b..." \
+  -H "Content-Type: multipart/form-data" \
+  -F "image=@photo.jpg" \
+  -F "generate_pdf_report=true"</code></pre>
+          </div>
+
+          <div style="margin-top:1.25rem; padding-top:0.85rem; border-top:1px solid var(--border-subtle);">
+            <h4 style="font-size:0.82rem; font-weight:700; font-family:var(--font-mono); color:#fff; margin-bottom:0.4rem;">Sample Response (JSON):</h4>
+            <div style="background:#06080d; border:1px solid var(--border-subtle); border-radius:var(--radius-sm); padding:0.75rem; font-family:var(--font-mono); font-size:0.72rem; color:var(--teal-glow);">
+              <pre>{
+  "status": "success",
+  "verdict": "SYNTHETIC_DEEPFAKE",
+  "confidence_score": 0.948,
+  "model_signature": "Midjourney_v6_Diffusion",
+  "pdf_report_url": "https://api.scanline.ai/reports/SCAN-8921A.pdf"
+}</pre>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- ─── 6 API Key Use Cases ─────────────────────────────────────────────── -->
+      <div style="margin-top: 2.5rem;">
+        <h2 style="font-family:var(--font-serif); font-size:1.5rem; font-weight:700; color:var(--text-highlight); margin-bottom:0.35rem;">
+          Six Ways to Use the Scanline API Key
+        </h2>
+        <p style="font-family:var(--font-mono); font-size:0.78rem; color:var(--text-muted); margin-bottom:1.5rem; letter-spacing:0.3px;">
+          Your <code style="background:rgba(15,23,42,0.06); padding:0.1rem 0.4rem; border-radius:3px; font-size:0.75rem;">sl_live_*</code> key authenticates every request to the Scanline REST API.
+        </p>
+
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(290px, 1fr)); gap:1.1rem;">
+
+          <!-- Use 1 -->
+          <div class="glass-card" style="border-left:3px solid var(--teal-glow);">
+            <div style="display:flex; align-items:center; gap:0.6rem; margin-bottom:0.5rem;">
+              <span style="font-family:var(--font-mono); font-size:0.68rem; background:var(--teal-glow); color:#fff; padding:0.12rem 0.45rem; border-radius:var(--radius-sm);">01</span>
+              <h3 style="font-size:0.92rem; font-weight:700; font-family:var(--font-serif); color:var(--text-main);">Single Image Forensic Scan</h3>
+            </div>
+            <p style="font-size:0.80rem; color:var(--text-muted); line-height:1.6;">Submit any JPG, PNG, or WEBP image to <code style="font-size:0.72rem; background:rgba(15,23,42,0.06); padding:0.1rem 0.3rem; border-radius:3px;">POST /v1/scan</code> and receive a full forensic verdict — ELA score, FFT noise, facial symmetry — within 200ms.</p>
+          </div>
+
+          <!-- Use 2 -->
+          <div class="glass-card" style="border-left:3px solid var(--cyan-glow);">
+            <div style="display:flex; align-items:center; gap:0.6rem; margin-bottom:0.5rem;">
+              <span style="font-family:var(--font-mono); font-size:0.68rem; background:var(--cyan-glow); color:#fff; padding:0.12rem 0.45rem; border-radius:var(--radius-sm);">02</span>
+              <h3 style="font-size:0.92rem; font-weight:700; font-family:var(--font-serif); color:var(--text-main);">PDF Forensic Report Generation</h3>
+            </div>
+            <p style="font-size:0.80rem; color:var(--text-muted); line-height:1.6;">Append <code style="font-size:0.72rem; background:rgba(15,23,42,0.06); padding:0.1rem 0.3rem; border-radius:3px;">generate_pdf_report=true</code> to any scan request. Receive a secure, signed PDF audit certificate with SHA-256 hash, UUID, and ELA heatmap.</p>
+          </div>
+
+          <!-- Use 3 -->
+          <div class="glass-card" style="border-left:3px solid var(--amber-accent);">
+            <div style="display:flex; align-items:center; gap:0.6rem; margin-bottom:0.5rem;">
+              <span style="font-family:var(--font-mono); font-size:0.68rem; background:var(--amber-accent); color:#fff; padding:0.12rem 0.45rem; border-radius:var(--radius-sm);">03</span>
+              <h3 style="font-size:0.92rem; font-weight:700; font-family:var(--font-serif); color:var(--text-main);">Batch Queue Processing</h3>
+            </div>
+            <p style="font-size:0.80rem; color:var(--text-muted); line-height:1.6;">Send up to 20 images per request to <code style="font-size:0.72rem; background:rgba(15,23,42,0.06); padding:0.1rem 0.3rem; border-radius:3px;">POST /v1/batch</code>. Results are returned as a JSON array, sorted by synthetic probability score.</p>
+          </div>
+
+          <!-- Use 4 -->
+          <div class="glass-card" style="border-left:3px solid #7c3aed;">
+            <div style="display:flex; align-items:center; gap:0.6rem; margin-bottom:0.5rem;">
+              <span style="font-family:var(--font-mono); font-size:0.68rem; background:#7c3aed; color:#fff; padding:0.12rem 0.45rem; border-radius:var(--radius-sm);">04</span>
+              <h3 style="font-size:0.92rem; font-weight:700; font-family:var(--font-serif); color:var(--text-main);">Webhook Alerts on Detection</h3>
+            </div>
+            <p style="font-size:0.80rem; color:var(--text-muted); line-height:1.6;">Register a <code style="font-size:0.72rem; background:rgba(15,23,42,0.06); padding:0.1rem 0.3rem; border-radius:3px;">webhook_url</code> in your API key settings. Scanline will POST an alert payload to your endpoint whenever a synthetic image exceeds your configured threshold.</p>
+          </div>
+
+          <!-- Use 5 -->
+          <div class="glass-card" style="border-left:3px solid var(--ai-fake-color);">
+            <div style="display:flex; align-items:center; gap:0.6rem; margin-bottom:0.5rem;">
+              <span style="font-family:var(--font-mono); font-size:0.68rem; background:var(--ai-fake-color); color:#fff; padding:0.12rem 0.45rem; border-radius:var(--radius-sm);">05</span>
+              <h3 style="font-size:0.92rem; font-weight:700; font-family:var(--font-serif); color:var(--text-main);">Audit History Export</h3>
+            </div>
+            <p style="font-size:0.80rem; color:var(--text-muted); line-height:1.6;">Pull your full scan history from <code style="font-size:0.72rem; background:rgba(15,23,42,0.06); padding:0.1rem 0.3rem; border-radius:3px;">GET /v1/history</code>. Responses include timestamps, verdicts, confidence scores, and links to stored PDF reports for compliance audits.</p>
+          </div>
+
+          <!-- Use 6 -->
+          <div class="glass-card" style="border-left:3px solid var(--real-authentic-color);">
+            <div style="display:flex; align-items:center; gap:0.6rem; margin-bottom:0.5rem;">
+              <span style="font-family:var(--font-mono); font-size:0.68rem; background:var(--real-authentic-color); color:#fff; padding:0.12rem 0.45rem; border-radius:var(--radius-sm);">06</span>
+              <h3 style="font-size:0.92rem; font-weight:700; font-family:var(--font-serif); color:var(--text-main);">Model Benchmark & Metadata</h3>
+            </div>
+            <p style="font-size:0.80rem; color:var(--text-muted); line-height:1.6;">Query <code style="font-size:0.72rem; background:rgba(15,23,42,0.06); padding:0.1rem 0.3rem; border-radius:3px;">GET /v1/models</code> to retrieve accuracy benchmarks, latency figures, and supported generator fingerprints (Midjourney, FLUX, SDXL, DALL·E 3) for your current API tier.</p>
+          </div>
+
+        </div>
+
+        <div style="margin-top:1rem; padding:0.75rem 1.1rem; background:rgba(15,23,42,0.03); border:1px solid var(--border-subtle); border-radius:var(--radius-sm); font-family:var(--font-mono); font-size:0.72rem; color:var(--text-dim);">
+          <i class="fa-solid fa-circle-info" style="color:var(--teal-glow); margin-right:0.4rem;"></i>
+          All API requests require <code>Authorization: Bearer &lt;your_key&gt;</code>. Rate limit: 500 requests/day on the free tier.
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-bottom">
+        <div>SCANLINE IMAGE FORENSICS • LOCAL CLIENT HEURISTICS</div>
+      </div>
+    </div>
+  </footer>
+
+  <script src="js/utils.js"></script>
+  <script src="js/nav.js"></script>
+  <script src="js/batch.js"></script>
+  <script src="js/auth.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const langSelect = document.getElementById('apiLangSelect');
+      const codeBlock = document.getElementById('apiCodeBlock');
+
+      const snippets = {
+        curl: `curl -X POST https://api.scanline.ai/v1/scan \\
+  -H "Authorization: Bearer sl_live_9f8a3b..." \\
+  -H "Content-Type: multipart/form-data" \\
+  -F "image=@photo.jpg" \\
+  -F "generate_pdf_report=true"`,
+        node: `const formData = new FormData();
+formData.append('image', fileInput.files[0]);
+
+const res = await fetch('https://api.scanline.ai/v1/scan', {
+  method: 'POST',
+  headers: { 'Authorization': 'Bearer sl_live_9f8a3b...' },
+  body: formData
+});
+const data = await res.json();
+console.log(data.verdict, data.confidence_score);`,
+        python: `import requests
+
+url = "https://api.scanline.ai/v1/scan"
+headers = {"Authorization": "Bearer sl_live_9f8a3b..."}
+files = {"image": open("photo.jpg", "rb")}
+
+response = requests.post(url, headers=headers, files=files)
+print(response.json())`
+      };
+
+      if (langSelect && codeBlock) {
+        langSelect.addEventListener('change', () => {
+          codeBlock.textContent = snippets[langSelect.value] || snippets.curl;
+        });
+      }
+    });
+  </script>
+</body>
+</html>

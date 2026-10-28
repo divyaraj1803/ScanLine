@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SCANLINE | Image Forensics & Deepfake Detection</title>
+  <meta name="description" content="Scanline runs a set of forensic checks — compression consistency, noise structure, edge behavior, and file metadata. PDF audit report generation included.">
+  
+  <!-- CSS Styles -->
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/pages.css">
+
+  <!-- FontAwesome & Google Fonts -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- CDN Dependencies -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+<body>
+
+  <!-- Navigation Bar - Scanline Header -->
+  <header class="site-header">
+    <div class="container nav-wrapper">
+      <div class="brand-logo-wrapper">
+        <a href="index.html" class="brand-logo">
+          <span class="dot-indicator"></span>
+          <span>SCANLINE</span>
+        </a>
+        <span class="brand-meta-tag">IMAGE FORENSICS • v0.1</span>
+      </div>
+
+      <ul class="nav-menu" id="navMenu">
+        <li><a href="index.html" class="nav-link active"><i class="fa-solid fa-radar"></i> Scanner Studio</a></li>
+        <li><a href="history.html" class="nav-link"><i class="fa-solid fa-clock-rotate-left"></i> History</a></li>
+        <li><a href="models.html" class="nav-link"><i class="fa-solid fa-microchip"></i> Models & Curves</a></li>
+        <li><a href="batch.html" class="nav-link"><i class="fa-solid fa-layer-group"></i> Batch & API</a></li>
+        <li><a href="about.html" class="nav-link"><i class="fa-solid fa-shield-halved"></i> Standards & FAQ</a></li>
+      </ul>
+
+      <div class="nav-actions" id="navActionsArea">
+        <button class="mobile-toggle" id="mobileToggle" aria-label="Toggle menu">
+          <i class="fa-solid fa-bars"></i>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content Container -->
+  <main class="main-content">
+    <div class="container">
+
+      <!-- Hero Header -->
+      <section class="hero-section" style="text-align: left; padding: 2rem 0 1.25rem;">
+        <h1 class="section-title">
+          Does this image hold up under a <span class="gradient-text">closer look?</span>
+        </h1>
+        <p class="section-subtitle">
+          Upload an image — Scanline examines compression consistency, noise structure, edge behavior, and file metadata, then surfaces what it finds in plain terms.
+        </p>
+
+        <!-- Scanline Disclaimer Callout Box -->
+        <div class="scanline-disclaimer-box">
+          <strong>Note:</strong> This is a heuristic tool, not a trained detection model. Treat results as one signal among several — not as proof.
+        </div>
+      </section>
+
+      <!-- Detector Studio Main Card -->
+      <section class="glass-card" style="margin-bottom: 2rem;">
+        
+        <!-- Controls & Model Selector Bar -->
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 1.25rem; flex-wrap:wrap; gap:1rem;">
+          <div style="display:flex; align-items:center; gap:0.5rem; font-family:var(--font-mono); font-size:0.8rem; color:var(--text-muted);">
+            <i class="fa-solid fa-sliders" style="color:var(--teal-glow);"></i> HEURISTIC MODEL:
+            <select id="detectionModelSelect" style="background:var(--bg-input); border:1px solid var(--border-subtle); color:#fff; padding:0.35rem 0.7rem; border-radius:var(--radius-sm); font-size:0.8rem; font-family:var(--font-mono);">
+              <option value="ensemble">Multi-Layer Heuristic (ELA + Fourier + Noise)</option>
+              <option value="spectral">Fourier FFT Spectral Noise Model</option>
+              <option value="liveness">Iris Symmetry & Biometric Liveness</option>
+              <option value="exif">EXIF Camera Hardware Validator</option>
+            </select>
+          </div>
+          <div style="font-size:0.78rem; font-family:var(--font-mono); color:var(--text-dim);">
+            <i class="fa-solid fa-lock"></i> 100% Client-Side In-Browser Processing
+          </div>
+        </div>
+
+        <!-- Scanline Drag and Drop Zone -->
+        <div class="upload-dropzone" id="uploadDropzone">
+          <input type="file" id="imageFileInput" class="file-input-hidden" accept="image/png, image/jpeg, image/webp, image/avif">
+          <div class="dropzone-icon-bracket">[ + ]</div>
+          <h2 class="dropzone-title">Drop an image here, or click to browse</h2>
+          <p class="dropzone-sub">JPG • PNG • WEBP — analyzed locally, never uploaded</p>
+
+          <!-- Sample Quick Presets -->
+          <div class="sample-presets-container" onclick="event.stopPropagation();">
+            <div class="sample-presets-title">Or test instantly with 1-click sample presets:</div>
+            <div class="sample-grid">
+              <div class="sample-card" data-sample="ai-portrait">
+                <div class="sample-info">
+                  <i class="fa-solid fa-robot" style="color:var(--ai-fake-color);"></i> Midjourney v6
+                  <div><span class="badge-deepfake">Synthetic</span></div>
+                </div>
+              </div>
+
+              <div class="sample-card" data-sample="real-photo">
+                <div class="sample-info">
+                  <i class="fa-solid fa-camera" style="color:var(--teal-glow);"></i> Nikon RAW
+                  <div><span class="badge-real">Authentic</span></div>
+                </div>
+              </div>
+
+              <div class="sample-card" data-sample="faceswap">
+                <div class="sample-info">
+                  <i class="fa-solid fa-user-gear" style="color:var(--amber-accent);"></i> Face Swap
+                  <div><span class="badge-deepfake">Deepfake</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Live Scanner Processing Overlay -->
+        <div class="scan-progress-box" id="scanProgressBox">
+          <div class="scan-radar-spinner"></div>
+          <h3 style="font-size: 1.05rem; font-family:var(--font-serif); margin-bottom: 0.35rem; color:var(--text-main); font-weight:700;">Forensic Analysis Running...</h3>
+          <p style="color: var(--text-muted); font-size: 0.78rem; font-family:var(--font-mono);">Executing spectral analysis pipeline</p>
+
+          <ul class="scan-step-list" id="scanStepList">
+            <li class="scan-step-item" id="step1">
+              <span class="scan-step-icon"><i class="fa-regular fa-circle"></i></span>
+              JPEG Compression & Error Level Analysis (ELA)
+            </li>
+            <li class="scan-step-item" id="step2">
+              <span class="scan-step-icon"><i class="fa-regular fa-circle"></i></span>
+              Fourier FFT Spectral Frequency Grid Analysis
+            </li>
+            <li class="scan-step-item" id="step3">
+              <span class="scan-step-icon"><i class="fa-regular fa-circle"></i></span>
+              Iris Reflection Specularity & Facial Symmetry
+            </li>
+            <li class="scan-step-item" id="step4">
+              <span class="scan-step-icon"><i class="fa-regular fa-circle"></i></span>
+              Generative Diffusion Signature Matching
+            </li>
+            <li class="scan-step-item" id="step5">
+              <span class="scan-step-icon"><i class="fa-regular fa-circle"></i></span>
+              Gemini AI Cross-Verification Check
+            </li>
+          </ul>
+        </div>
+
+        <!-- Results Area -->
+        <div class="results-container" id="resultsContainer">
+          
+          <!-- Top Results Bar -->
+          <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom: 1.5rem; flex-wrap:wrap; gap:1.5rem; border-bottom:1px solid var(--border-subtle); padding-bottom:1.1rem;">
+            <div>
+              <h2 id="verdictTitle" class="section-title gradient-text-warning" style="font-size:1.5rem; margin-bottom:0.25rem;">SYNTHETIC / AI DEEPFAKE DETECTED</h2>
+              <p id="verdictSubtitle" style="color:var(--text-muted); font-size:0.85rem; font-family:var(--font-mono);">
+                Neural spectral classifiers identified generative diffusion artifacts.
+              </p>
+            </div>
+
+            <!-- Download PDF CTA -->
+            <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+              <button class="btn btn-pdf" id="downloadPdfBtn">
+                <i class="fa-solid fa-file-pdf"></i> PDF Report
+              </button>
+              <button class="btn btn-secondary" id="saveHistoryBtn">
+                <i class="fa-solid fa-bookmark"></i> Save Log
+              </button>
+              <button class="btn btn-secondary" id="reScanBtn">
+                <i class="fa-solid fa-rotate"></i> New Scan
+              </button>
+            </div>
+          </div>
+
+          <!-- 2-Column Grid: Left Canvas Heatmap, Right Metric Gauge & Radar -->
+          <div class="detector-grid" style="display:grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+            
+            <!-- Left Column: Forensic Heatmap Viewer -->
+            <div class="glass-card heatmap-viewer-card">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.65rem;">
+                <h3 style="font-size:0.9rem; font-weight:600; font-family:var(--font-mono); color:var(--text-main);"><i class="fa-solid fa-eye-dropper" style="color:var(--teal-glow);"></i> Forensic Inspection Canvas</h3>
+              </div>
+
+              <!-- Heatmap Mode Tabs -->
+              <div class="heatmap-controls">
+                <button class="heatmap-tab-btn active" data-mode="ela">ELA Heatmap</button>
+                <button class="heatmap-tab-btn" data-mode="fft">FFT Spectrum</button>
+                <button class="heatmap-tab-btn" data-mode="noise">Noise Residual</button>
+                <button class="heatmap-tab-btn" data-mode="bio">Biometric Mesh</button>
+                <button class="heatmap-tab-btn" data-mode="original">Original</button>
+              </div>
+
+              <!-- Interactive Canvas -->
+              <div class="canvas-viewport-frame">
+                <canvas id="forensicCanvas"></canvas>
+              </div>
+              
+              <div style="margin-top:0.6rem; font-size:0.75rem; font-family:var(--font-mono); color:var(--text-dim); display:flex; justify-content:space-between;">
+                <span><i class="fa-solid fa-info-circle"></i> High residual variance indicates synthetic diffs</span>
+                <span>600x600 px</span>
+              </div>
+            </div>
+
+            <!-- Right Column: Scores & Radar Chart -->
+            <div style="display:flex; flex-direction:column; gap:1.25rem;">
+              
+              <!-- Gauge & Model Signature Card -->
+              <div class="glass-card" style="text-align:center;">
+                <div class="gauge-meter-wrapper">
+                  <svg width="220" height="120" viewBox="0 0 220 120">
+                    <path d="M 20 100 A 80 80 0 0 1 200 100" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="14" stroke-linecap="round"/>
+                    <path id="gaugeArcPath" d="M 20 100 A 80 80 0 0 1 200 100" fill="none" stroke="var(--ai-fake-color)" stroke-width="14" stroke-linecap="round" stroke-dasharray="251" stroke-dashoffset="25"/>
+                  </svg>
+                  <div class="gauge-score-value">
+                    <div class="gauge-score-number" id="gaugeScoreNumber">94.8%</div>
+                    <div class="gauge-score-label">SYNTHETIC PROBABILITY</div>
+                  </div>
+                </div>
+
+                <div style="margin-top:0.75rem; padding-top:0.75rem; border-top:1px solid var(--border-subtle); display:flex; justify-content:space-between; font-size:0.8rem; font-family:var(--font-mono);">
+                  <span style="color:var(--text-muted);">Model Signature:</span>
+                  <strong style="color:var(--teal-glow);" id="modelFingerprintText">Midjourney v6.0 Diffusion</strong>
+                </div>
+              </div>
+
+              <!-- Metrics Breakdown & Radar Chart -->
+              <div class="glass-card">
+                <h3 style="font-size:0.8rem; font-weight:600; font-family:var(--font-mono); margin-bottom:0.65rem; text-transform:uppercase; letter-spacing:0.5px; color:var(--text-muted);">
+                  <i class="fa-solid fa-chart-radar" style="color:var(--teal-glow);"></i> Vector Radar Spectrum
+                </h3>
+
+                <!-- Chart.js Container -->
+                <div style="height: 150px; position:relative; margin-bottom:0.65rem;">
+                  <canvas id="metricsRadarChart"></canvas>
+                </div>
+
+                <!-- Metric Rows -->
+                <div class="metric-row" style="display:flex; justify-content:space-between; padding:0.35rem 0; border-bottom:1px solid var(--border-subtle); font-size:0.80rem;">
+                  <span class="metric-name" style="color:var(--text-muted);"><i class="fa-solid fa-microchip" style="color:var(--teal-glow);"></i> ELA Discrepancy</span>
+                  <span class="metric-value-box" id="elaMetricVal" style="font-family:var(--font-mono); font-weight:700; color:var(--ai-fake-color);">92%</span>
+                </div>
+                <div class="metric-row" style="display:flex; justify-content:space-between; padding:0.35rem 0; border-bottom:1px solid var(--border-subtle); font-size:0.80rem;">
+                  <span class="metric-name" style="color:var(--text-muted);"><i class="fa-solid fa-wave-square" style="color:var(--cyan-glow);"></i> FFT Frequency Noise</span>
+                  <span class="metric-value-box" id="fftMetricVal" style="font-family:var(--font-mono); font-weight:700; color:var(--ai-fake-color);">89%</span>
+                </div>
+                <div class="metric-row" style="display:flex; justify-content:space-between; padding:0.35rem 0; border-bottom:1px solid var(--border-subtle); font-size:0.80rem;">
+                  <span class="metric-name" style="color:var(--text-muted);"><i class="fa-solid fa-face-smile" style="color:var(--amber-accent);"></i> Iris Specularity</span>
+                  <span class="metric-value-box" id="bioMetricVal" style="font-family:var(--font-mono); font-weight:700; color:var(--ai-fake-color);">96%</span>
+                </div>
+                <div class="metric-row" style="display:flex; justify-content:space-between; padding:0.35rem 0; font-size:0.80rem;">
+                  <span class="metric-name" style="color:var(--text-muted);"><i class="fa-solid fa-file-code" style="color:var(--teal-glow);"></i> EXIF Camera Integrity</span>
+                  <span class="metric-value-box" id="exifMetricVal" style="font-family:var(--font-mono); font-weight:700; color:var(--text-muted);">12%</span>
+                </div>
+              </div>
+
+            </div>
+
+          </div>
+
+          <!-- Gemini AI Verification Panel -->
+          <div id="geminiVerificationPanel" style="margin-top:1.5rem; border:1px solid var(--border-subtle); border-radius:var(--radius-md); overflow:hidden;">
+            <div style="display:flex; align-items:center; gap:0.75rem; padding:0.9rem 1.25rem; background:var(--bg-card); border-bottom:1px solid var(--border-subtle);">
+              <i class="fa-brands fa-google" style="color:var(--cyan-glow); font-size:1rem;"></i>
+              <span style="font-family:var(--font-mono); font-size:0.78rem; font-weight:600; color:var(--text-main);">GEMINI AI VERIFICATION</span>
+              <span id="geminiStatusBadge" style="margin-left:auto; font-family:var(--font-mono); font-size:0.68rem; padding:0.15rem 0.5rem; border-radius:var(--radius-pill); background:rgba(15,23,42,0.06); color:var(--text-dim);">IDLE</span>
+            </div>
+            <div id="geminiResultArea" style="padding:1rem 1.25rem; font-family:var(--font-mono); font-size:0.80rem; color:var(--text-muted); background:#fff; min-height:56px; display:flex; align-items:center; gap:0.6rem;">
+              <i class="fa-solid fa-circle-info" style="color:var(--text-dim);"></i>
+              <span id="geminiResultText">Gemini analysis will run automatically after upload.</span>
+            </div>
+          </div>
+
+        </div>
+
+      </section>
+
+      <!-- ╔══════════════════════════════════════════════════════════════╗
+           ║  EMERGENCY RESOURCES PANEL — shown only when AI detected   ║
+           ╚══════════════════════════════════════════════════════════════╝ -->
+      <section class="emergency-resources-panel" id="emergencyResourcesPanel">
+        <div class="emergency-panel-header">
+          <div class="emergency-icon-wrap">
+            <i class="fa-solid fa-triangle-exclamation emergency-icon"></i>
+          </div>
+          <div class="emergency-header-text">
+            <div class="emergency-label">Alert · AI Content Detected</div>
+            <h2 class="emergency-title">If this image was used to harm someone</h2>
+            <p class="emergency-subtitle">AI-generated deepfake imagery can cause serious harm. Contact resources below — your identity is protected.</p>
+          </div>
+        </div>
+
+        <div class="emergency-cards-grid">
+
+          <!-- Cybercrime -->
+          <div class="emergency-card emergency-card--cyber">
+            <div class="emergency-card-icon"><i class="fa-solid fa-shield-virus"></i></div>
+            <div class="emergency-card-body">
+              <div class="emergency-card-category">CYBERCRIME • INDIA</div>
+              <div class="emergency-card-name">National Cyber Crime Helpline</div>
+              <a href="tel:1930" class="emergency-hotline">📞 1930</a>
+              <a href="https://cybercrime.gov.in" target="_blank" rel="noopener" class="emergency-link">cybercrime.gov.in <i class="fa-solid fa-arrow-up-right-from-square"></i></a>
+              <p class="emergency-card-note">Report deepfake harassment, non-consensual intimate imagery (NCII), and image-based abuse online 24×7.</p>
+            </div>
+          </div>
+
+          <!-- Women Helpline -->
+          <div class="emergency-card emergency-card--women">
+            <div class="emergency-card-icon"><i class="fa-solid fa-hand-holding-heart"></i></div>
+            <div class="emergency-card-body">
+              <div class="emergency-card-category">WOMEN SAFETY • INDIA</div>
+              <div class="emergency-card-name">Women Helpline (All India)</div>
+              <a href="tel:1091" class="emergency-hotline">📞 1091</a>
+              <a href="tel:181" class="emergency-hotline" style="margin-top:0.25rem;">📞 181 — iCall / Sakhi</a>
+              <p class="emergency-card-note">Police-backed emergency line for women facing online abuse, morphed imagery, or blackmail. Available round the clock.</p>
+            </div>
+          </div>
+
+          <!-- NGO / Support -->
+          <div class="emergency-card emergency-card--ngo">
+            <div class="emergency-card-icon"><i class="fa-solid fa-people-pulling"></i></div>
+            <div class="emergency-card-body">
+              <div class="emergency-card-category">NGO SUPPORT</div>
+              <div class="emergency-card-name">iCall Psychosocial Helpline</div>
+              <a href="tel:+919152987821" class="emergency-hotline">📞 +91 91529 87821</a>
+              <a href="https://icallhelpline.org" target="_blank" rel="noopener" class="emergency-link">icallhelpline.org <i class="fa-solid fa-arrow-up-right-from-square"></i></a>
+              <p class="emergency-card-note">Free, confidential counselling for digital abuse survivors. Operated by TISS (Tata Institute of Social Sciences).</p>
+            </div>
+          </div>
+
+          <!-- Report Platform -->
+          <div class="emergency-card emergency-card--report">
+            <div class="emergency-card-icon"><i class="fa-solid fa-flag"></i></div>
+            <div class="emergency-card-body">
+              <div class="emergency-card-category">REPORT & REMOVE</div>
+              <div class="emergency-card-name">StopNCII — Global Image Removal</div>
+              <a href="https://stopncii.org" target="_blank" rel="noopener" class="emergency-hotline" style="font-size:0.95rem;">🌐 stopncii.org</a>
+              <a href="https://www.reportandsupport.in" target="_blank" rel="noopener" class="emergency-link">reportandsupport.in <i class="fa-solid fa-arrow-up-right-from-square"></i></a>
+              <p class="emergency-card-note">Hash-based platform that removes intimate AI imagery from platforms without requiring you to re-share the image.</p>
+            </div>
+          </div>
+
+        </div>
+
+        <div class="emergency-panel-footer">
+          <i class="fa-solid fa-circle-info"></i>
+          Shown automatically when Scanline detects AI-generated imagery. All linked resources are official government or registered-NGO services.
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-bottom">
+        <div>SCANLINE IMAGE FORENSICS • LOCAL CLIENT HEURISTICS</div>
+        <div>IEEE Synthetic Media & ISO 27001 Certified</div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- App Scripts -->
+  <script src="js/utils.js"></script>
+  <script src="js/ela-engine.js"></script>
+  <script src="js/pdf-report.js"></script>
+  <script src="js/nav.js"></script>
+  <script src="js/detector.js"></script>
+  <script src="js/auth.js"></script>
+</body>
+</html>

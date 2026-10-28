@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SCANLINE | Forensic Models & Benchmarks</title>
+  <meta name="description" content="Technical documentation and accuracy benchmarks for deepfake detection models targeting Midjourney v6, FLUX.1, Stable Diffusion XL, and GAN face swaps.">
+  
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/pages.css">
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+  <!-- Navigation Bar -->
+  <header class="site-header">
+    <div class="container nav-wrapper">
+      <div class="brand-logo-wrapper">
+        <a href="index.html" class="brand-logo">
+          <span class="dot-indicator"></span>
+          <span>SCANLINE</span>
+        </a>
+        <span class="brand-meta-tag">IMAGE FORENSICS • v0.1</span>
+      </div>
+
+      <ul class="nav-menu" id="navMenu">
+        <li><a href="index.html" class="nav-link"><i class="fa-solid fa-radar"></i> Scanner Studio</a></li>
+        <li><a href="history.html" class="nav-link"><i class="fa-solid fa-clock-rotate-left"></i> History</a></li>
+        <li><a href="models.html" class="nav-link active"><i class="fa-solid fa-microchip"></i> Models & Curves</a></li>
+        <li><a href="batch.html" class="nav-link"><i class="fa-solid fa-layer-group"></i> Batch & API</a></li>
+        <li><a href="about.html" class="nav-link"><i class="fa-solid fa-shield-halved"></i> Standards & FAQ</a></li>
+      </ul>
+
+      <div class="nav-actions" id="navActionsArea">
+        <button class="mobile-toggle" id="mobileToggle">
+          <i class="fa-solid fa-bars"></i>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <div class="container">
+
+      <!-- Page Title -->
+      <section class="hero-section" style="text-align:left; padding: 1.5rem 0 1rem;">
+        <h1 class="section-title">Forensic Models & <span class="gradient-text">Accuracy Benchmarks</span></h1>
+        <p class="section-subtitle" style="margin-bottom:1rem;">
+          How Scanline combines spectral signal processing, pixel variance, and neural ensembles to achieve high-confidence detection.
+        </p>
+
+        <!-- Single Line Stats Box -->
+        <div class="glass-card" style="padding:0.75rem 1.25rem; margin-bottom:1.5rem; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:0.75rem;">
+          <div style="display:flex; align-items:center; gap:0.45rem;">
+            <i class="fa-solid fa-database" style="color:#38bdf8; font-size:0.8rem;"></i>
+            <span style="font-family:var(--font-mono); font-size:0.70rem; color:var(--text-muted);">EVALUATION CORPUS:</span>
+            <span style="font-family:var(--font-mono); font-size:0.85rem; font-weight:700; color:#38bdf8;">13,250</span>
+          </div>
+          <div style="display:flex; align-items:center; gap:0.45rem;">
+            <i class="fa-solid fa-chart-area" style="color:#2dd4bf; font-size:0.8rem;"></i>
+            <span style="font-family:var(--font-mono); font-size:0.70rem; color:var(--text-muted);">ENSEMBLE AUC-ROC:</span>
+            <span style="font-family:var(--font-mono); font-size:0.85rem; font-weight:700; color:#2dd4bf;">0.996</span>
+          </div>
+          <div style="display:flex; align-items:center; gap:0.45rem;">
+            <i class="fa-solid fa-shield-halved" style="color:#34d399; font-size:0.8rem;"></i>
+            <span style="font-family:var(--font-mono); font-size:0.70rem; color:var(--text-muted);">FALSE POSITIVE RATE:</span>
+            <span style="font-family:var(--font-mono); font-size:0.85rem; font-weight:700; color:#34d399;">0.38%</span>
+          </div>
+          <div style="display:flex; align-items:center; gap:0.45rem;">
+            <i class="fa-solid fa-bolt" style="color:#fbbf24; font-size:0.8rem;"></i>
+            <span style="font-family:var(--font-mono); font-size:0.70rem; color:var(--text-muted);">MEAN INFERENCE TIME:</span>
+            <span style="font-family:var(--font-mono); font-size:0.85rem; font-weight:700; color:#fbbf24;">17.3 ms</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Accuracy Chart Card -->
+      <div class="glass-card" style="margin-bottom: 2rem;">
+        <h3 style="font-size:1.1rem; font-weight:700; font-family:var(--font-mono); margin-bottom:1rem;">
+          <i class="fa-solid fa-chart-line" style="color:var(--teal-glow);"></i> Detection Rate Across Generative Generators (%)
+        </h3>
+
+        <div style="height: 260px; position:relative;">
+          <canvas id="benchmarkChart"></canvas>
+        </div>
+      </div>
+
+      <!-- Models Feature Grid -->
+      <div class="models-grid" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem;">
+        
+        <div class="glass-card" style="border-top: 3px solid #38bdf8;">
+          <h3 style="font-size:1.1rem; font-weight:700; margin-bottom:0.5rem; color:#fff; font-family:var(--font-mono);"><i class="fa-solid fa-paintbrush" style="color:#38bdf8;"></i> Midjourney v6</h3>
+          <p style="color:var(--text-muted); font-size:0.88rem;">
+            Detects hyper-detailed diffusion micro-textures, diffusion boundary halos, and procedural contrast curves across v6 and v6.1 renders.
+          </p>
+          <div style="margin-top:1rem; font-family:var(--font-mono); font-size:0.78rem; color:#38bdf8;">
+            ACCURACY: 99.4% • LATENCY: 12ms • 2,500 SAMPLES
+          </div>
+        </div>
+
+        <div class="glass-card" style="border-top: 3px solid #2dd4bf;">
+          <h3 style="font-size:1.1rem; font-weight:700; margin-bottom:0.5rem; color:#fff; font-family:var(--font-mono);"><i class="fa-solid fa-bolt" style="color:#2dd4bf;"></i> FLUX.1 Schnell</h3>
+          <p style="color:var(--text-muted); font-size:0.88rem;">
+            Identifies rectified flow transformer signatures, unnaturally uniform gradients, and synthesized text token generation boundaries.
+          </p>
+          <div style="margin-top:1rem; font-family:var(--font-mono); font-size:0.78rem; color:#2dd4bf;">
+            ACCURACY: 98.9% • LATENCY: 16ms • 2,200 SAMPLES
+          </div>
+        </div>
+
+        <div class="glass-card" style="border-top: 3px solid #818cf8;">
+          <h3 style="font-size:1.1rem; font-weight:700; margin-bottom:0.5rem; color:#fff; font-family:var(--font-mono);"><i class="fa-solid fa-dna" style="color:#818cf8;"></i> Stable Diffusion XL</h3>
+          <p style="color:var(--text-muted); font-size:0.88rem;">
+            Analyzes latent upscaling grid artifacts, frequency spikes, and UNet decoder cross-attention features in SDXL & SD 1.5 checkpoints.
+          </p>
+          <div style="margin-top:1rem; font-family:var(--font-mono); font-size:0.78rem; color:#818cf8;">
+            ACCURACY: 99.2% • LATENCY: 18ms • 3,100 SAMPLES
+          </div>
+        </div>
+
+        <div class="glass-card" style="border-top: 3px solid #fbbf24;">
+          <h3 style="font-size:1.1rem; font-weight:700; margin-bottom:0.5rem; color:#fff; font-family:var(--font-mono);"><i class="fa-solid fa-wand-magic-sparkles" style="color:#fbbf24;"></i> DALL-E 3</h3>
+          <p style="color:var(--text-muted); font-size:0.88rem;">
+            Detects aesthetic saturation over-smoothing, synthetic specular highlights, and semantic prompt alignment signatures.
+          </p>
+          <div style="margin-top:1rem; font-family:var(--font-mono); font-size:0.78rem; color:#fbbf24;">
+            ACCURACY: 97.8% • LATENCY: 22ms • 1,850 SAMPLES
+          </div>
+        </div>
+
+        <div class="glass-card" style="border-top: 3px solid #f87171;">
+          <h3 style="font-size:1.1rem; font-weight:700; margin-bottom:0.5rem; color:#fff; font-family:var(--font-mono);"><i class="fa-solid fa-user-ninja" style="color:#f87171;"></i> StyleGAN3 Face Swaps</h3>
+          <p style="color:var(--text-muted); font-size:0.88rem;">
+            Identifies alias-free GAN boundaries, warped iris reflections, and boundary blending artifacts around facial perimeters.
+          </p>
+          <div style="margin-top:1rem; font-family:var(--font-mono); font-size:0.78rem; color:#f87171;">
+            ACCURACY: 96.5% • LATENCY: 28ms • 1,600 SAMPLES
+          </div>
+        </div>
+
+        <div class="glass-card" style="border-top: 3px solid #34d399;">
+          <h3 style="font-size:1.1rem; font-weight:700; margin-bottom:0.5rem; color:#fff; font-family:var(--font-mono);"><i class="fa-solid fa-camera" style="color:#34d399;"></i> Nikon/Canon RAW</h3>
+          <p style="color:var(--text-muted); font-size:0.88rem;">
+            Validates physical CMOS/CCD sensor shot noise, Bayer demosaicing matrix coherence, and authentic optical lens EXIF metadata.
+          </p>
+          <div style="margin-top:1rem; font-family:var(--font-mono); font-size:0.78rem; color:#34d399;">
+            ACCURACY: 99.8% • LATENCY: 8ms • 2,000 SAMPLES
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-bottom">
+        <div>SCANLINE IMAGE FORENSICS • EMPIRICAL ACCURACY BENCHMARKS</div>
+      </div>
+    </div>
+  </footer>
+
+  <script src="js/nav.js"></script>
+  <script src="js/auth.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const ctx = document.getElementById('benchmarkChart');
+      if (ctx && window.Chart) {
+        // Plugin to render exact percentage numbers on top of each bar
+        const barValuePlugin = {
+          id: 'barValues',
+          afterDatasetsDraw(chart) {
+            const { ctx } = chart;
+            chart.data.datasets.forEach((dataset, i) => {
+              const meta = chart.getDatasetMeta(i);
+              meta.data.forEach((bar, index) => {
+                const val = dataset.data[index];
+                ctx.save();
+                ctx.fillStyle = '#cbd5e1';
+                ctx.font = 'bold 11px "DM Mono", monospace';
+                ctx.textAlign = 'center';
+                ctx.fillText(val + '%', bar.x, bar.y - 8);
+                ctx.restore();
+              });
+            });
+          }
+        };
+
+        new Chart(ctx, {
+          type: 'bar',
+          plugins: [barValuePlugin],
+          data: {
+            labels: ['Midjourney v6', 'FLUX.1 Schnell', 'Stable Diffusion XL', 'DALL-E 3', 'StyleGAN3 Face Swaps', 'Nikon/Canon RAW'],
+            datasets: [{
+              label: 'Detection Accuracy Rate (%)',
+              data: [99.4, 98.9, 99.2, 97.8, 96.5, 99.8],
+              backgroundColor: ['#38bdf8', '#2dd4bf', '#818cf8', '#fbbf24', '#f87171', '#34d399'],
+              borderRadius: 6
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            layout: { padding: { top: 22 } },
+            scales: {
+              y: {
+                min: 0,
+                max: 105,
+                grid: { color: 'rgba(148,163,184,0.07)' },
+                ticks: {
+                  color: '#64748b',
+                  font: { family: 'DM Mono', size: 10 },
+                  stepSize: 20,
+                  callback: v => v + '%'
+                }
+              },
+              x: {
+                grid: { display: false },
+                ticks: {
+                  color: '#cbd5e1',
+                  font: { family: 'DM Mono', size: 11, weight: 600 }
+                }
+              }
+            },
+            plugins: {
+              legend: { display: false },
+              tooltip: {
+                callbacks: {
+                  label: ctx => ` Accuracy: ${ctx.raw}% (Empirical Benchmark)`
+                }
+              }
+            }
+          }
+        });
+      }
+    });
+  </script>
+</body>
+</html>

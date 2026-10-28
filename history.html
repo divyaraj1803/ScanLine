@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SCANLINE | Audit Log History & Forensic Records</title>
+  <meta name="description" content="View and manage previous AI deepfake forensic audit logs, filter results, export JSON data, and re-download PDF reports.">
+  
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/pages.css">
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+<body>
+
+  <!-- Navigation Bar -->
+  <header class="site-header">
+    <div class="container nav-wrapper">
+      <div class="brand-logo-wrapper">
+        <a href="index.html" class="brand-logo">
+          <span class="dot-indicator"></span>
+          <span>SCANLINE</span>
+        </a>
+        <span class="brand-meta-tag">IMAGE FORENSICS • v0.1</span>
+      </div>
+
+      <ul class="nav-menu" id="navMenu">
+        <li><a href="index.html" class="nav-link"><i class="fa-solid fa-radar"></i> Scanner Studio</a></li>
+        <li><a href="history.html" class="nav-link active"><i class="fa-solid fa-clock-rotate-left"></i> History</a></li>
+        <li><a href="models.html" class="nav-link"><i class="fa-solid fa-microchip"></i> Models & Curves</a></li>
+        <li><a href="batch.html" class="nav-link"><i class="fa-solid fa-layer-group"></i> Batch & API</a></li>
+        <li><a href="about.html" class="nav-link"><i class="fa-solid fa-shield-halved"></i> Standards & FAQ</a></li>
+      </ul>
+
+      <div class="nav-actions" id="navActionsArea">
+        <button class="mobile-toggle" id="mobileToggle">
+          <i class="fa-solid fa-bars"></i>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <div class="container">
+
+      <!-- Section Title Header -->
+      <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-bottom: 1.5rem; flex-wrap:wrap; gap:1rem;">
+        <div>
+          <h1 class="section-title">Forensic Scan <span class="gradient-text">History</span></h1>
+          <p class="section-subtitle" style="margin-bottom:0;">Persistent history of all analyzed image scans stored in client session memory.</p>
+        </div>
+
+        <div style="display:flex; gap:0.6rem;">
+          <button class="btn btn-secondary btn-sm" id="exportJsonBtn">
+            <i class="fa-solid fa-download"></i> Export Audit JSON
+          </button>
+          <button class="btn btn-secondary btn-sm" id="clearHistoryBtn" style="color:var(--ai-fake-color);">
+            <i class="fa-solid fa-trash-can"></i> Clear History
+          </button>
+        </div>
+      </div>
+
+      <!-- Controls & Filter Bar -->
+      <div class="glass-card history-controls-bar" style="margin-bottom: 1.5rem;">
+        <div class="search-input-wrapper">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <input type="text" id="historySearchInput" placeholder="Search by file name or report ID...">
+        </div>
+
+        <div style="display:flex; align-items:center; gap:0.6rem;">
+          <span style="font-size:0.8rem; color:var(--text-muted); font-family:var(--font-mono);">VERDICT FILTER:</span>
+          <select id="filterTypeSelect" style="background:var(--bg-input); border:1px solid var(--border-subtle); color:#fff; padding:0.4rem 0.8rem; border-radius:var(--radius-sm); font-size:0.8rem; font-family:var(--font-mono);">
+            <option value="all">All Forensic Scans</option>
+            <option value="fake">AI Deepfakes Only</option>
+            <option value="real">Authentic Real Photos Only</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Audit History Table -->
+      <div class="history-table-wrapper">
+        <table class="history-table">
+          <thead>
+            <tr>
+              <th>REPORT UUID</th>
+              <th>TARGET FILE DETAILS</th>
+              <th>VERDICT & CONFIDENCE</th>
+              <th>MODEL SIGNATURE</th>
+              <th>TIMESTAMP</th>
+              <th>ACTIONS</th>
+            </tr>
+          </thead>
+          <tbody id="historyTableBody">
+            <!-- Rendered dynamically by js/history.js -->
+          </tbody>
+        </table>
+      </div>
+
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-bottom">
+        <div>SCANLINE IMAGE FORENSICS • LOCAL CLIENT HEURISTICS</div>
+        <div>IEEE Synthetic Media Standard Compliant</div>
+      </div>
+    </div>
+  </footer>
+
+  <script src="js/utils.js"></script>
+  <script src="js/pdf-report.js"></script>
+  <script src="js/nav.js"></script>
+  <script src="js/history.js"></script>
+  <script src="js/auth.js"></script>
+</body>
+</html>
