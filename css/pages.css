@@ -129,7 +129,7 @@
 }
 
 .history-table th {
-  background: #f8f9fb;
+  background: #141414;
   color: var(--text-muted);
   font-family: var(--font-mono);
   font-size: 0.78rem;
@@ -142,13 +142,13 @@
 .history-table td {
   padding: 0.9rem 1.25rem;
   border-bottom: 1px solid var(--border-subtle);
-  background: #fff;
+  background: #0f0f0f;
   vertical-align: middle;
   color: var(--text-main);
 }
 
 .history-table tr:hover td {
-  background: #f8f9fb;
+  background: #1a1a1a;
 }
 
 .history-thumb-mini {
@@ -209,7 +209,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: #f8f9fb;
+  background: #141414;
   padding: 0.75rem 1.1rem;
   border-radius: var(--radius-sm);
   border: 1px solid var(--border-subtle);
@@ -226,7 +226,7 @@
 }
 
 .faq-item {
-  background: #fff;
+  background: #121212;
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-sm);
   overflow: hidden;
@@ -234,7 +234,7 @@
 }
 
 .faq-item:hover {
-  box-shadow: 0 2px 12px rgba(15, 23, 42, 0.06);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
 }
 
 .faq-question {

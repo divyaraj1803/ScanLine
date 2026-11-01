@@ -1,7 +1,7 @@
 import { useState, useCallback } from 'react'
 
-const GEMINI_KEY = 'AIzaSyD60QUdMdxIbwYA9sWLAhuVpaqdxNndUeM'
-const GEMINI_MODELS = ['gemini-3.5-flash-lite', 'gemini-3.5-flash', 'gemini-3.8-flash']
+const GEMINI_KEY = import.meta.env?.VITE_GEMINI_KEY || ''
+const GEMINI_MODELS = ['gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-1.5-flash', 'gemini-3.5-flash-lite', 'gemini-3.5-flash', 'gemini-3.8-flash']
 const API_BASE   = 'http://localhost:5000'
 
 /* ══════════════════════════════════════════════════════════════════════════
