@@ -3,20 +3,20 @@
    Serves static frontend + provides /api/analyze & Gemini Vision API
    ========================================================================== */
 
-try { require('dotenv').config(); } catch(e) { try { require('./backend/node_modules/dotenv').config(); } catch(e2) {} }
+try { require('dotenv').config(); } catch (e) { try { require('./backend/node_modules/dotenv').config(); } catch (e2) { } }
 const express = require('express');
-const multer  = require('multer');
-const cors    = require('cors');
-const path    = require('path');
-const sharp   = require('sharp');
-const bcrypt  = require('bcrypt');
-const jwt     = require('jsonwebtoken');
-const fs      = require('fs');
+const multer = require('multer');
+const cors = require('cors');
+const path = require('path');
+const sharp = require('sharp');
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
+const fs = require('fs');
 
 /* ── Auth Config ─────────────────────────────────────────────────────────── */
-const JWT_SECRET    = process.env.JWT_SECRET || 'scanline-super-secret-key-change-in-prod';
-const USERS_FILE    = path.join(__dirname, 'users.json');
-const SALT_ROUNDS   = 10;
+const JWT_SECRET = process.env.JWT_SECRET || 'scanline-super-secret-key-change-in-prod';
+const USERS_FILE = path.join(__dirname, 'users.json');
+const SALT_ROUNDS = 10;
 
 function loadUsers() {
   if (!fs.existsSync(USERS_FILE)) return [];
@@ -32,7 +32,7 @@ function verifyToken(token) {
   try { return jwt.verify(token, JWT_SECRET); } catch { return null; }
 }
 
-const app  = express();
+const app = express();
 const PORT = process.env.PORT || 3000;
 
 /* ── Middleware ─────────────────────────────────────────────────────────── */
@@ -57,12 +57,13 @@ const upload = multer({
 /* ── Gemini Vision API Integration ────────────────────────────────────────── */
 const GEMINI_KEY = process.env.GEMINI_KEY || '';
 const GEMINI_MODELS = [
+  'gemini-3.8-flash',
+  'gemini-3.5-flash',
+  'gemini-flash-latest',
+  'gemini-3.1-flash-lite',
   'gemini-2.5-flash',
   'gemini-2.0-flash',
-  'gemini-1.5-flash',
-  'gemini-3.5-flash-lite',
-  'gemini-3.5-flash',
-  'gemini-3.8-flash'
+  'gemini-1.5-flash'
 ];
 
 async function callGeminiVision(buffer, originalMime) {
@@ -230,9 +231,9 @@ async function metaScore(rawBuffer) {
   try {
     const meta = await sharp(rawBuffer).metadata();
     let score = 0;
-    if (meta.exif)   score += 30;
-    if (meta.icc)    score += 15;
-    if (meta.xmp)    score += 10;
+    if (meta.exif) score += 30;
+    if (meta.icc) score += 15;
+    if (meta.xmp) score += 10;
     if (meta.density && meta.density >= 72) score += 20;
     if (meta.format === 'jpeg') score += 15;
     return Math.min(score, 100);
@@ -249,43 +250,43 @@ async function analyzeImage(buffer, originalName) {
     metaScore(buffer)
   ]);
 
-  const elaScore      = Math.max(0, Math.min(100, 100 - (ela / 15) * 100));
-  const entropyScore  = colour.avgEntropy > 0.88 ? 85 : colour.avgEntropy > 0.80 ? 50 : 20;
-  const channelScore  = colour.avgChannelDiff < 0.05 ? 80 : colour.avgChannelDiff < 0.10 ? 45 : 15;
-  const exifPenalty   = Math.max(0, 100 - exifScore);
+  const elaScore = Math.max(0, Math.min(100, 100 - (ela / 15) * 100));
+  const entropyScore = colour.avgEntropy > 0.88 ? 85 : colour.avgEntropy > 0.80 ? 50 : 20;
+  const channelScore = colour.avgChannelDiff < 0.05 ? 80 : colour.avgChannelDiff < 0.10 ? 45 : 15;
+  const exifPenalty = Math.max(0, 100 - exifScore);
 
   const lowerName = (originalName || '').toLowerCase();
   const nameBias = ['ai', 'midjourney', 'flux', 'dalle', 'sdxl', 'mj', 'deepfake', 'synthetic']
     .some(k => lowerName.includes(k)) ? 20 : 0;
 
   const compositeAI = Math.min(100,
-    elaScore      * 0.30 +
-    entropyScore  * 0.25 +
-    channelScore  * 0.20 +
-    exifPenalty   * 0.20 +
-    nameBias      * 0.05
+    elaScore * 0.30 +
+    entropyScore * 0.25 +
+    channelScore * 0.20 +
+    exifPenalty * 0.20 +
+    nameBias * 0.05
   );
 
   const isDeepfake = compositeAI >= 50;
 
   const metrics = {
-    elaDiscrepancy:  Math.round(elaScore),
-    spectralNoise:   Math.round(entropyScore),
-    facialSymmetry:  Math.round(channelScore),
-    exifIntegrity:   exifScore
+    elaDiscrepancy: Math.round(elaScore),
+    spectralNoise: Math.round(entropyScore),
+    facialSymmetry: Math.round(channelScore),
+    exifIntegrity: exifScore
   };
 
   return {
-    verdict:          isDeepfake ? 'AI_GENERATED' : 'AUTHENTIC',
+    verdict: isDeepfake ? 'AI_GENERATED' : 'AUTHENTIC',
     isDeepfake,
-    confidenceScore:  parseFloat(compositeAI.toFixed(1)),
+    confidenceScore: parseFloat(compositeAI.toFixed(1)),
     modelFingerprint: isDeepfake
       ? 'Server-side Heuristic Classifier (ELA + Entropy + EXIF)'
       : 'Organic Sensor / Authentic Photograph',
     metrics,
     analysis: {
-      elaVariance:    parseFloat(ela.toFixed(4)),
-      entropyAvg:     parseFloat(colour.avgEntropy.toFixed(4)),
+      elaVariance: parseFloat(ela.toFixed(4)),
+      entropyAvg: parseFloat(colour.avgEntropy.toFixed(4)),
       channelBalance: parseFloat(colour.avgChannelDiff.toFixed(4)),
       exifScore
     }
@@ -410,20 +411,20 @@ app.post('/api/analyze', upload.single('image'), async (req, res) => {
 
       return res.json({
         ok: true,
-        fileName:  req.file.originalname,
-        fileSize:  `${(req.file.size / (1024 * 1024)).toFixed(2)} MB`,
-        mimeType:  req.file.mimetype,
-        detector:  `Gemini AI (${gemini.modelUsed || 'Vision'})`,
-        verdict:   gemini.verdict,
+        fileName: req.file.originalname,
+        fileSize: `${(req.file.size / (1024 * 1024)).toFixed(2)} MB`,
+        mimeType: req.file.mimetype,
+        detector: `Gemini AI (${gemini.modelUsed || 'Vision'})`,
+        verdict: gemini.verdict,
         isDeepfake: isAI,
         confidenceScore: conf,
         modelFingerprint: gemini.generator || (isAI ? 'Synthetic Diffusion Model' : 'Organic Optical Camera Sensor'),
         reasoning: gemini.reasoning,
         metrics: {
           elaDiscrepancy: isAI ? Math.max(78, heuristic.metrics.elaDiscrepancy) : Math.min(20, heuristic.metrics.elaDiscrepancy),
-          spectralNoise:  isAI ? Math.max(74, heuristic.metrics.spectralNoise) : Math.min(18, heuristic.metrics.spectralNoise),
+          spectralNoise: isAI ? Math.max(74, heuristic.metrics.spectralNoise) : Math.min(18, heuristic.metrics.spectralNoise),
           facialSymmetry: isAI ? Math.max(80, heuristic.metrics.facialSymmetry) : Math.min(42, heuristic.metrics.facialSymmetry),
-          exifIntegrity:  isAI ? Math.min(25, heuristic.metrics.exifIntegrity) : Math.max(75, heuristic.metrics.exifIntegrity)
+          exifIntegrity: isAI ? Math.min(25, heuristic.metrics.exifIntegrity) : Math.max(75, heuristic.metrics.exifIntegrity)
         },
         gemini,
         analysis: heuristic.analysis
@@ -433,10 +434,10 @@ app.post('/api/analyze', upload.single('image'), async (req, res) => {
     // Heuristic fallback if Gemini is offline
     res.json({
       ok: true,
-      fileName:  req.file.originalname,
-      fileSize:  `${(req.file.size / (1024 * 1024)).toFixed(2)} MB`,
-      mimeType:  req.file.mimetype,
-      detector:  'Heuristic Classifier (Offline Fallback)',
+      fileName: req.file.originalname,
+      fileSize: `${(req.file.size / (1024 * 1024)).toFixed(2)} MB`,
+      mimeType: req.file.mimetype,
+      detector: 'Heuristic Classifier (Offline Fallback)',
       ...heuristic
     });
   } catch (err) {
@@ -450,12 +451,12 @@ app.get('/api/models', (_req, res) => {
   res.json({
     ok: true,
     models: [
-      { id: 'mj6',      name: 'Midjourney v6',        accuracy: 99.4, latency_ms: 12 },
-      { id: 'flux',     name: 'FLUX.1 Schnell',       accuracy: 98.9, latency_ms: 16 },
-      { id: 'sdxl',     name: 'Stable Diffusion XL',  accuracy: 99.2, latency_ms: 18 },
-      { id: 'dalle',    name: 'DALL-E 3',             accuracy: 97.8, latency_ms: 22 },
+      { id: 'mj6', name: 'Midjourney v6', accuracy: 99.4, latency_ms: 12 },
+      { id: 'flux', name: 'FLUX.1 Schnell', accuracy: 98.9, latency_ms: 16 },
+      { id: 'sdxl', name: 'Stable Diffusion XL', accuracy: 99.2, latency_ms: 18 },
+      { id: 'dalle', name: 'DALL-E 3', accuracy: 97.8, latency_ms: 22 },
       { id: 'stylegan', name: 'StyleGAN3 Face Swaps', accuracy: 96.5, latency_ms: 28 },
-      { id: 'raw',      name: 'Nikon/Canon RAW',      accuracy: 99.8, latency_ms: 8  }
+      { id: 'raw', name: 'Nikon/Canon RAW', accuracy: 99.8, latency_ms: 8 }
     ]
   });
 });
@@ -491,9 +492,12 @@ app.get('*', (req, res) => {
 });
 
 /* ── Start ───────────────────────────────────────────────────────────────── */
-app.listen(PORT, () => {
-  console.log(`\n🔬 SCANLINE Forensics API running at http://localhost:${PORT}`);
-  console.log(`   → Static site:   http://localhost:${PORT}/index.html`);
-  console.log(`   → Analyze API:   http://localhost:${PORT}/api/analyze      [POST multipart/form-data]`);
-  console.log(`   → Gemini Vision: http://localhost:${PORT}/api/gemini-scan  [POST multipart or json]\n`);
-});
+if (require.main === module) {
+  app.listen(PORT, () => {
+    console.log(`\n🔬 SCANLINE Forensics API running at http://localhost:${PORT}`);
+    console.log(`   → Static site:   http://localhost:${PORT}/index.html`);
+    console.log(`   → Analyze API:   http://localhost:${PORT}/api/analyze      [POST multipart/form-data]`);
+    console.log(`   → Gemini Vision: http://localhost:${PORT}/api/gemini-scan  [POST multipart or json]\n`);
+  });
+}
+module.exports = app;

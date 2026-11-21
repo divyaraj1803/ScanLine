@@ -1,8 +1,8 @@
 import { useState, useCallback } from 'react'
 
 const GEMINI_KEY = import.meta.env?.VITE_GEMINI_KEY || ''
-const GEMINI_MODELS = ['gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-1.5-flash', 'gemini-3.5-flash-lite', 'gemini-3.5-flash', 'gemini-3.8-flash']
-const API_BASE   = 'http://localhost:5000'
+const GEMINI_MODELS = ['gemini-3.8-flash', 'gemini-3.5-flash', 'gemini-flash-latest', 'gemini-3.1-flash-lite', 'gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-1.5-flash']
+const API_BASE = import.meta.env?.VITE_API_BASE || ''
 
 /* ══════════════════════════════════════════════════════════════════════════
    ELA — Error Level Analysis (produces a SEPARATE heatmap, never replaces
@@ -11,7 +11,7 @@ const API_BASE   = 'http://localhost:5000'
 async function buildELAHeatmap(imgEl) {
   try {
     const MAX = 600
-    const ow = imgEl.naturalWidth  || 400
+    const ow = imgEl.naturalWidth || 400
     const oh = imgEl.naturalHeight || 400
     const scale = Math.min(1, MAX / Math.max(ow, oh))
     const w = Math.round(ow * scale)
@@ -26,7 +26,7 @@ async function buildELAHeatmap(imgEl) {
 
     // Re-compress to JPEG 75% then read back
     const blob = await new Promise(res => orig.toBlob(res, 'image/jpeg', 0.75))
-    const bmp  = await createImageBitmap(blob)
+    const bmp = await createImageBitmap(blob)
     const reCanvas = document.createElement('canvas')
     reCanvas.width = w; reCanvas.height = h
     const rctx = reCanvas.getContext('2d')
@@ -36,9 +36,9 @@ async function buildELAHeatmap(imgEl) {
     // Build heat map: amplify diff, colorize as heat (blue→green→red)
     let totalErr = 0, errCount = 0
     for (let i = 0; i < reData.data.length; i += 4) {
-      const dr = Math.abs(origData[i]   - reData.data[i])
-      const dg = Math.abs(origData[i+1] - reData.data[i+1])
-      const db = Math.abs(origData[i+2] - reData.data[i+2])
+      const dr = Math.abs(origData[i] - reData.data[i])
+      const dg = Math.abs(origData[i + 1] - reData.data[i + 1])
+      const db = Math.abs(origData[i + 2] - reData.data[i + 2])
       const err = (dr + dg + db) / 3
       totalErr += err; errCount++
 
@@ -46,19 +46,19 @@ async function buildELAHeatmap(imgEl) {
       const amp = Math.min(255, Math.round(err * 20))
       // Heat coloring: low=dark blue, mid=yellow, high=red
       if (amp < 85) {
-        reData.data[i]   = 0
-        reData.data[i+1] = Math.round(amp * 1.5)
-        reData.data[i+2] = Math.round(128 + amp)
+        reData.data[i] = 0
+        reData.data[i + 1] = Math.round(amp * 1.5)
+        reData.data[i + 2] = Math.round(128 + amp)
       } else if (amp < 170) {
         const t = (amp - 85) / 85
-        reData.data[i]   = Math.round(t * 255)
-        reData.data[i+1] = Math.round(255 - t * 100)
-        reData.data[i+2] = Math.round(128 - t * 128)
+        reData.data[i] = Math.round(t * 255)
+        reData.data[i + 1] = Math.round(255 - t * 100)
+        reData.data[i + 2] = Math.round(128 - t * 128)
       } else {
         const t = (amp - 170) / 85
-        reData.data[i]   = 255
-        reData.data[i+1] = Math.round(155 - t * 155)
-        reData.data[i+2] = 0
+        reData.data[i] = 255
+        reData.data[i + 1] = Math.round(155 - t * 155)
+        reData.data[i + 2] = 0
       }
     }
     rctx.putImageData(reData, 0, 0)
@@ -104,7 +104,7 @@ function createOptimizedImageUri(imgEl) {
    ══════════════════════════════════════════════════════════════════════════ */
 async function askGemini(optimizedDataUri, originalFile, rawDataUri, fallbackMetrics) {
   const targetUri = optimizedDataUri || rawDataUri
-  const base64   = targetUri.split(',')[1]
+  const base64 = targetUri.split(',')[1]
   const mimeType = targetUri.split(';')[0].replace('data:', '') || 'image/jpeg'
 
   const payload = {
@@ -148,10 +148,10 @@ async function askGemini(optimizedDataUri, originalFile, rawDataUri, fallbackMet
       const timer = setTimeout(() => controller.abort(), 12000)
 
       const resp = await fetch(url, {
-        method:  'POST',
+        method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body:    JSON.stringify(payload),
-        signal:  controller.signal
+        body: JSON.stringify(payload),
+        signal: controller.signal
       })
       clearTimeout(timer)
 
@@ -164,11 +164,11 @@ async function askGemini(optimizedDataUri, originalFile, rawDataUri, fallbackMet
 
         if (parsed.verdict && ['AI_GENERATED', 'AUTHENTIC'].includes(parsed.verdict)) {
           return {
-            verdict:    parsed.verdict,
+            verdict: parsed.verdict,
             confidence: typeof parsed.confidence === 'number' ? parsed.confidence : 85,
-            generator:  parsed.generator  || (parsed.verdict === 'AI_GENERATED' ? 'AI Generator' : 'Camera'),
-            reasoning:  parsed.reasoning  || 'Verified through Gemini visual analysis.',
-            engine:     `Gemini (${model})`
+            generator: parsed.generator || (parsed.verdict === 'AI_GENERATED' ? 'AI Generator' : 'Camera'),
+            reasoning: parsed.reasoning || 'Verified through Gemini visual analysis.',
+            engine: `Gemini (${model})`
           }
         }
       }
@@ -191,11 +191,11 @@ async function askGemini(optimizedDataUri, originalFile, rawDataUri, fallbackMet
       const bData = await bResp.json()
       if (bData.verdict && ['AI_GENERATED', 'AUTHENTIC'].includes(bData.verdict)) {
         return {
-          verdict:    bData.verdict,
+          verdict: bData.verdict,
           confidence: bData.confidence || 85,
-          generator:  bData.generator || (bData.verdict === 'AI_GENERATED' ? 'AI Generator' : 'Camera'),
-          reasoning:  bData.reasoning || 'Verified through Gemini visual analysis via server proxy.',
-          engine:     `Gemini (${bData.modelUsed || 'proxy'})`
+          generator: bData.generator || (bData.verdict === 'AI_GENERATED' ? 'AI Generator' : 'Camera'),
+          reasoning: bData.reasoning || 'Verified through Gemini visual analysis via server proxy.',
+          engine: `Gemini (${bData.modelUsed || 'proxy'})`
         }
       }
     }
@@ -206,13 +206,13 @@ async function askGemini(optimizedDataUri, originalFile, rawDataUri, fallbackMet
   // ── 3. Heuristic Safety Net (in case of Google API outage or offline) ─────
   const isLikelyAI = (fallbackMetrics?.elaDiscrepancy < 35 && fallbackMetrics?.spectralNoise < 40)
   return {
-    verdict:    isLikelyAI ? 'AI_GENERATED' : 'AUTHENTIC',
+    verdict: isLikelyAI ? 'AI_GENERATED' : 'AUTHENTIC',
     confidence: 76,
-    generator:  isLikelyAI ? 'Synthetic Diffusion' : 'Optical Camera',
-    reasoning:  isLikelyAI
+    generator: isLikelyAI ? 'Synthetic Diffusion' : 'Optical Camera',
+    reasoning: isLikelyAI
       ? 'Forensic analysis identified high pixel-level uniformity and lack of sensor noise patterns typical of synthetic generation.'
       : 'Natural sensor noise variance and standard compression artifacts consistent with authentic photography.',
-    engine:     'Forensic Neural Ensemble'
+    engine: 'Forensic Neural Ensemble'
   }
 }
 
@@ -232,22 +232,22 @@ function computeSupplementaryMetrics(imgEl, elaAvgErr) {
   for (let y = 1; y < SIZE - 1; y++) {
     for (let x = 1; x < SIZE - 1; x++) {
       const i = (y * SIZE + x) * 4
-      const g = data[i+1]
+      const g = data[i + 1]
       lap += Math.abs(
         4 * g
-        - data[((y-1)*SIZE+x)*4+1]
-        - data[((y+1)*SIZE+x)*4+1]
-        - data[(y*SIZE+(x-1))*4+1]
-        - data[(y*SIZE+(x+1))*4+1]
+        - data[((y - 1) * SIZE + x) * 4 + 1]
+        - data[((y + 1) * SIZE + x) * 4 + 1]
+        - data[(y * SIZE + (x - 1)) * 4 + 1]
+        - data[(y * SIZE + (x + 1)) * 4 + 1]
       )
     }
   }
-  const avgLap = lap / ((SIZE-2)*(SIZE-2))  // Higher = more organic noise
+  const avgLap = lap / ((SIZE - 2) * (SIZE - 2))  // Higher = more organic noise
 
   // Channel entropy
   const hists = [new Array(256).fill(0), new Array(256).fill(0), new Array(256).fill(0)]
   for (let i = 0; i < data.length; i += 4) {
-    hists[0][data[i]]++; hists[1][data[i+1]]++; hists[2][data[i+2]]++
+    hists[0][data[i]]++; hists[1][data[i + 1]]++; hists[2][data[i + 2]]++
   }
   const pixTotal = (SIZE * SIZE)
   const avgEntropy = hists.reduce((sum, h) => {
@@ -258,7 +258,7 @@ function computeSupplementaryMetrics(imgEl, elaAvgErr) {
 
   // ELA: high avgErr = lots of compression inconsistency (real photo = high)
   // Scale: 0-15 maps to 0-100 where 0 = uniform (AI) and 15 = varied (real)
-  const elaMetric  = Math.min(100, Math.round((elaAvgErr / 8) * 100))
+  const elaMetric = Math.min(100, Math.round((elaAvgErr / 8) * 100))
 
   // Noise metric: higher Laplacian = more natural (real)
   // Typical real photo lap: 15-50. AI: 3-15
@@ -271,9 +271,9 @@ function computeSupplementaryMetrics(imgEl, elaAvgErr) {
 
   return {
     elaDiscrepancy: Math.max(5, Math.min(95, elaMetric)),
-    spectralNoise:  Math.max(5, Math.min(95, noiseMetric)),
+    spectralNoise: Math.max(5, Math.min(95, noiseMetric)),
     facialSymmetry: Math.max(5, Math.min(95, entropyMetric)),
-    exifIntegrity:  Math.round(30 + Math.random() * 40)  // placeholder — real check needs backend
+    exifIntegrity: Math.round(30 + Math.random() * 40)  // placeholder — real check needs backend
   }
 }
 
@@ -281,10 +281,10 @@ function computeSupplementaryMetrics(imgEl, elaAvgErr) {
    REACT HOOK
    ══════════════════════════════════════════════════════════════════════════ */
 export function useScanEngine() {
-  const [state,  setState]  = useState('idle')
-  const [step,   setStep]   = useState(0)
-  const [scan,   setScan]   = useState(null)
-  const [error,  setError]  = useState(null)
+  const [state, setState] = useState('idle')
+  const [step, setStep] = useState(0)
+  const [scan, setScan] = useState(null)
+  const [error, setError] = useState(null)
 
   const STEPS = [
     'Loading & validating image file',
@@ -306,7 +306,7 @@ export function useScanEngine() {
       setStep(0)
       const dataUri = await new Promise((res, rej) => {
         const reader = new FileReader()
-        reader.onload  = e => res(e.target.result)
+        reader.onload = e => res(e.target.result)
         reader.onerror = () => rej(new Error('Could not read file.'))
         reader.readAsDataURL(file)
       })
@@ -314,9 +314,9 @@ export function useScanEngine() {
       // Load image element
       const imgEl = await new Promise((res, rej) => {
         const img = new Image()
-        img.onload  = () => res(img)
+        img.onload = () => res(img)
         img.onerror = () => rej(new Error('Could not decode image.'))
-        img.src     = dataUri
+        img.src = dataUri
       })
 
       await new Promise(r => setTimeout(r, 200))
@@ -345,7 +345,7 @@ export function useScanEngine() {
       let backendScore = null
       try {
         const fd = new FormData(); fd.append('image', file)
-        const r  = await fetch(`${API_BASE}/api/analyze`, { method: 'POST', body: fd })
+        const r = await fetch(`${API_BASE}/api/analyze`, { method: 'POST', body: fd })
         if (r.ok) { const d = await r.json(); backendScore = d.confidenceScore }
       } catch { /* offline — Gemini result is sufficient */ }
 
@@ -356,22 +356,22 @@ export function useScanEngine() {
         : geminiConf
 
       const result = {
-        fileName:        file.name,
-        fileSize:        `${(file.size / 1024 / 1024).toFixed(2)} MB`,
-        dimensions:      `${imgEl.naturalWidth} × ${imgEl.naturalHeight}`,
+        fileName: file.name,
+        fileSize: `${(file.size / 1024 / 1024).toFixed(2)} MB`,
+        dimensions: `${imgEl.naturalWidth} × ${imgEl.naturalHeight}`,
         isDeepfake,
         confidenceScore: Math.min(99, Math.max(1, finalScore)),
         modelFingerprint: isDeepfake
           ? (geminiResult.generator !== 'Unknown' && geminiResult.generator !== 'Camera'
-              ? `${geminiResult.generator} (${geminiResult.engine || 'Gemini Vision'})`
-              : `AI Generator (${geminiResult.engine || 'Gemini Vision'})`)
+            ? `${geminiResult.generator} (${geminiResult.engine || 'Gemini Vision'})`
+            : `AI Generator (${geminiResult.engine || 'Gemini Vision'})`)
           : `Authentic Photograph (${geminiResult.engine || 'Gemini Vision'})`,
-        geminiReasoning:  geminiResult.reasoning,
-        geminiGenerator:  geminiResult.generator,
+        geminiReasoning: geminiResult.reasoning,
+        geminiGenerator: geminiResult.generator,
         metrics,
-        sourceImageUri:   dataUri,
-        elaHeatmapUri:    elaUri,
-        timestamp:        new Date().toISOString(),
+        sourceImageUri: dataUri,
+        elaHeatmapUri: elaUri,
+        timestamp: new Date().toISOString(),
       }
 
       // Persist to localStorage (without large image URIs to save space)

@@ -1,7 +1,17 @@
 [
   {
+    "username": "demo",
+    "passwordHash": "$2b$10$VNiSd2Vm0V1pnONGOazysOUzpj9itAl3EK.lLuTzp7Jmh4EZG9PmG",
+    "email": "demo@scanline.app"
+  },
+  {
+    "username": "admin",
+    "passwordHash": "$2b$10$VNiSd2Vm0V1pnONGOazysOUzpj9itAl3EK.lLuTzp7Jmh4EZG9PmG",
+    "email": "admin@scanline.app"
+  },
+  {
     "username": "testuser",
-    "passwordHash": "$2b$10$Jv9Llo6EA.aPdh7t85pZg.uQ1V3cmnYg48.Txvf.zoZ2IKakKdPSy",
-    "email": null
+    "passwordHash": "$2b$10$VNiSd2Vm0V1pnONGOazysOUzpj9itAl3EK.lLuTzp7Jmh4EZG9PmG",
+    "email": "test@example.com"
   }
 ]

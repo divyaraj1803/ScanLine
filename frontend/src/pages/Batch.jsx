@@ -1,7 +1,7 @@
 import { useState, useRef } from 'react'
 import axios from 'axios'
 
-const API_BASE = 'http://localhost:5000'
+const API_BASE = import.meta.env?.VITE_API_BASE || ''
 
 const API_USES = [
   { num: '01', color: '#38bdf8', title: 'Single Image Forensic Scan',    endpoint: 'POST /api/analyze',    desc: 'Submit any JPG, PNG, or WEBP image and receive a full forensic verdict — ELA score, FFT noise, facial symmetry — within 200ms.' },

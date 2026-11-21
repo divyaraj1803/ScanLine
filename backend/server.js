@@ -3,22 +3,22 @@
    Separate backend for React frontend
    ========================================================================== */
 
-const express  = require('express');
-const multer   = require('multer');
-const cors     = require('cors');
-const path     = require('path');
+const express = require('express');
+const multer = require('multer');
+const cors = require('cors');
+const path = require('path');
 require('dotenv').config({ path: path.join(__dirname, '.env') });
-const sharp    = require('sharp');
-const bcrypt   = require('bcrypt');
-const jwt      = require('jsonwebtoken');
-const fs       = require('fs');
+const sharp = require('sharp');
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
+const fs = require('fs');
 
-const app  = express();
+const app = express();
 const PORT = process.env.PORT || 5000;
 
 /* ── Config ──────────────────────────────────────────────────────────────── */
-const JWT_SECRET  = process.env.JWT_SECRET  || 'scanline-super-secret-key-change-in-prod';
-const USERS_FILE  = path.join(__dirname, 'users.json');
+const JWT_SECRET = process.env.JWT_SECRET || 'scanline-super-secret-key-change-in-prod';
+const USERS_FILE = path.join(__dirname, 'users.json');
 const SALT_ROUNDS = 10;
 
 /* ── CORS ─────────────────────────────────────────────────────────────────── */
@@ -95,8 +95,8 @@ async function colourStats(rawBuffer) {
     hists[1][data[i + 1]]++;
     hists[2][data[i + 2]]++;
   }
-  const entropies   = hists.map(h => channelEntropy(h));
-  const avgEntropy  = entropies.reduce((a, b) => a + b, 0) / 3;
+  const entropies = hists.map(h => channelEntropy(h));
+  const avgEntropy = entropies.reduce((a, b) => a + b, 0) / 3;
   let corr = 0;
   const n = data.length / channels;
   for (let i = 0; i < data.length; i += channels) {
@@ -110,11 +110,11 @@ async function metaScore(rawBuffer) {
   try {
     const meta = await sharp(rawBuffer).metadata();
     let score = 0;
-    if (meta.exif)                       score += 30;
-    if (meta.icc)                        score += 15;
-    if (meta.xmp)                        score += 10;
+    if (meta.exif) score += 30;
+    if (meta.icc) score += 15;
+    if (meta.xmp) score += 10;
     if (meta.density && meta.density >= 72) score += 20;
-    if (meta.format === 'jpeg')          score += 15;
+    if (meta.format === 'jpeg') score += 15;
     return Math.min(score, 100);
   } catch { return 0; }
 }
@@ -125,22 +125,22 @@ async function analyzeImage(buffer, originalName) {
     colourStats(buffer),
     metaScore(buffer)
   ]);
-  const elaScore     = Math.max(0, Math.min(100, 100 - (ela / 15) * 100));
+  const elaScore = Math.max(0, Math.min(100, 100 - (ela / 15) * 100));
   const entropyScore = colour.avgEntropy > 0.88 ? 85 : colour.avgEntropy > 0.80 ? 50 : 20;
   const channelScore = colour.avgChannelDiff < 0.05 ? 80 : colour.avgChannelDiff < 0.10 ? 45 : 15;
-  const exifPenalty  = Math.max(0, 100 - exifScore);
-  const lowerName    = (originalName || '').toLowerCase();
-  const nameBias     = ['ai', 'midjourney', 'flux', 'dalle', 'sdxl', 'mj', 'deepfake', 'synthetic']
+  const exifPenalty = Math.max(0, 100 - exifScore);
+  const lowerName = (originalName || '').toLowerCase();
+  const nameBias = ['ai', 'midjourney', 'flux', 'dalle', 'sdxl', 'mj', 'deepfake', 'synthetic']
     .some(k => lowerName.includes(k)) ? 20 : 0;
-  const compositeAI  = Math.min(100,
+  const compositeAI = Math.min(100,
     elaScore * 0.30 + entropyScore * 0.25 + channelScore * 0.20 + exifPenalty * 0.20 + nameBias * 0.05
   );
   const isDeepfake = compositeAI >= 50;
-  const metrics    = {
+  const metrics = {
     elaDiscrepancy: Math.round(elaScore),
-    spectralNoise:  Math.round(entropyScore),
+    spectralNoise: Math.round(entropyScore),
     facialSymmetry: Math.round(channelScore),
-    exifIntegrity:  exifScore
+    exifIntegrity: exifScore
   };
   return {
     verdict: isDeepfake ? 'AI_GENERATED' : 'AUTHENTIC',
@@ -151,8 +151,8 @@ async function analyzeImage(buffer, originalName) {
       : 'Organic Sensor / Authentic Photograph',
     metrics,
     analysis: {
-      elaVariance:    parseFloat(ela.toFixed(4)),
-      entropyAvg:     parseFloat(colour.avgEntropy.toFixed(4)),
+      elaVariance: parseFloat(ela.toFixed(4)),
+      entropyAvg: parseFloat(colour.avgEntropy.toFixed(4)),
       channelBalance: parseFloat(colour.avgChannelDiff.toFixed(4)),
       exifScore
     }
@@ -184,7 +184,7 @@ app.post('/api/auth/login', async (req, res) => {
   if (!username || !password)
     return res.status(400).json({ error: 'Username and password required.' });
   const users = loadUsers();
-  const user  = users.find(u => u.username.toLowerCase() === username.toLowerCase());
+  const user = users.find(u => u.username.toLowerCase() === username.toLowerCase());
   if (!user) return res.status(401).json({ error: 'No account with that username.' });
   const match = await bcrypt.compare(password, user.passwordHash);
   if (!match) return res.status(401).json({ error: 'Invalid password.' });
@@ -193,20 +193,20 @@ app.post('/api/auth/login', async (req, res) => {
 });
 
 app.get('/api/auth/me', (req, res) => {
-  const auth  = req.headers.authorization || '';
+  const auth = req.headers.authorization || '';
   const token = auth.startsWith('Bearer ') ? auth.slice(7) : null;
   if (!token) return res.status(401).json({ error: 'No token.' });
   const payload = verifyToken(token);
   if (!payload) return res.status(401).json({ error: 'Invalid or expired token.' });
   const users = loadUsers();
-  const user  = users.find(u => u.username === payload.username);
+  const user = users.find(u => u.username === payload.username);
   if (!user) return res.status(404).json({ error: 'User not found.' });
   res.json({ ok: true, username: user.username, email: user.email });
 });
 
 /* ── Gemini Vision API Integration ────────────────────────────────────────── */
 const GEMINI_KEY = process.env.GEMINI_KEY || '';
-const GEMINI_MODELS = ['gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-1.5-flash', 'gemini-3.5-flash-lite', 'gemini-3.5-flash', 'gemini-3.8-flash'];
+const GEMINI_MODELS = ['gemini-3.8-flash', 'gemini-3.5-flash', 'gemini-flash-latest', 'gemini-3.1-flash-lite', 'gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-1.5-flash'];
 
 async function callGeminiVision(buffer, originalMime) {
   let optimizedBuffer = buffer;
@@ -355,20 +355,20 @@ app.post('/api/analyze', upload.single('image'), async (req, res) => {
 
       return res.json({
         ok: true,
-        fileName:  req.file.originalname,
-        fileSize:  `${(req.file.size / (1024 * 1024)).toFixed(2)} MB`,
-        mimeType:  req.file.mimetype,
-        detector:  `Gemini AI (${gemini.modelUsed || 'Vision'})`,
-        verdict:   gemini.verdict,
+        fileName: req.file.originalname,
+        fileSize: `${(req.file.size / (1024 * 1024)).toFixed(2)} MB`,
+        mimeType: req.file.mimetype,
+        detector: `Gemini AI (${gemini.modelUsed || 'Vision'})`,
+        verdict: gemini.verdict,
         isDeepfake: isAI,
         confidenceScore: conf,
         modelFingerprint: gemini.generator || (isAI ? 'Synthetic Diffusion Model' : 'Organic Optical Camera Sensor'),
         reasoning: gemini.reasoning,
         metrics: {
           elaDiscrepancy: isAI ? Math.max(78, heuristic.metrics.elaDiscrepancy) : Math.min(20, heuristic.metrics.elaDiscrepancy),
-          spectralNoise:  isAI ? Math.max(74, heuristic.metrics.spectralNoise) : Math.min(18, heuristic.metrics.spectralNoise),
+          spectralNoise: isAI ? Math.max(74, heuristic.metrics.spectralNoise) : Math.min(18, heuristic.metrics.spectralNoise),
           facialSymmetry: isAI ? Math.max(80, heuristic.metrics.facialSymmetry) : Math.min(42, heuristic.metrics.facialSymmetry),
-          exifIntegrity:  isAI ? Math.min(25, heuristic.metrics.exifIntegrity) : Math.max(75, heuristic.metrics.exifIntegrity)
+          exifIntegrity: isAI ? Math.min(25, heuristic.metrics.exifIntegrity) : Math.max(75, heuristic.metrics.exifIntegrity)
         },
         gemini,
         analysis: heuristic.analysis
@@ -378,10 +378,10 @@ app.post('/api/analyze', upload.single('image'), async (req, res) => {
     // Heuristic fallback if Gemini is offline
     res.json({
       ok: true,
-      fileName:  req.file.originalname,
-      fileSize:  `${(req.file.size / (1024 * 1024)).toFixed(2)} MB`,
-      mimeType:  req.file.mimetype,
-      detector:  'Heuristic Classifier (Offline Fallback)',
+      fileName: req.file.originalname,
+      fileSize: `${(req.file.size / (1024 * 1024)).toFixed(2)} MB`,
+      mimeType: req.file.mimetype,
+      detector: 'Heuristic Classifier (Offline Fallback)',
       ...heuristic
     });
   } catch (err) {
@@ -404,12 +404,12 @@ app.get('/api/models', (_req, res) => {
   res.json({
     ok: true,
     models: [
-      { id: 'mj6',      name: 'Midjourney v6',        accuracy: 99.4, latency_ms: 12 },
-      { id: 'flux',     name: 'FLUX.1 Schnell',       accuracy: 98.9, latency_ms: 16 },
-      { id: 'sdxl',     name: 'Stable Diffusion XL',  accuracy: 99.2, latency_ms: 18 },
-      { id: 'dalle',    name: 'DALL-E 3',             accuracy: 97.8, latency_ms: 22 },
+      { id: 'mj6', name: 'Midjourney v6', accuracy: 99.4, latency_ms: 12 },
+      { id: 'flux', name: 'FLUX.1 Schnell', accuracy: 98.9, latency_ms: 16 },
+      { id: 'sdxl', name: 'Stable Diffusion XL', accuracy: 99.2, latency_ms: 18 },
+      { id: 'dalle', name: 'DALL-E 3', accuracy: 97.8, latency_ms: 22 },
       { id: 'stylegan', name: 'StyleGAN3 Face Swaps', accuracy: 96.5, latency_ms: 28 },
-      { id: 'raw',      name: 'Nikon/Canon RAW',      accuracy: 99.8, latency_ms: 8  }
+      { id: 'raw', name: 'Nikon/Canon RAW', accuracy: 99.8, latency_ms: 8 }
     ]
   });
 });
@@ -430,12 +430,15 @@ app.post('/api/batch', upload.array('images', 20), async (req, res) => {
 });
 
 /* ── Start ────────────────────────────────────────────────────────────────── */
-app.listen(PORT, () => {
-  console.log(`\n🔬 SCANLINE Backend API  →  http://localhost:${PORT}`);
-  console.log(`   POST /api/analyze        — single image scan`);
-  console.log(`   POST /api/batch          — bulk image queue`);
-  console.log(`   GET  /api/models         — model benchmarks`);
-  console.log(`   POST /api/auth/register  — user registration`);
-  console.log(`   POST /api/auth/login     — user login`);
-  console.log(`   GET  /api/auth/me        — token validation\n`);
-});
+if (require.main === module) {
+  app.listen(PORT, () => {
+    console.log(`\n🔬 SCANLINE Backend API  →  http://localhost:${PORT}`);
+    console.log(`   POST /api/analyze        — single image scan`);
+    console.log(`   POST /api/batch          — bulk image queue`);
+    console.log(`   GET  /api/models         — model benchmarks`);
+    console.log(`   POST /api/auth/register  — user registration`);
+    console.log(`   POST /api/auth/login     — user login`);
+    console.log(`   GET  /api/auth/me        — token validation\n`);
+  });
+}
+module.exports = app;

@@ -96,10 +96,11 @@ const MODELS = [
 
 export default function Models() {
   const [liveData, setLiveData] = useState(null)
+  const API_BASE = import.meta.env?.VITE_API_BASE || ''
 
   useEffect(() => {
     // Fetch benchmark models from backend
-    fetch('http://localhost:5000/api/models')
+    fetch(`${API_BASE}/api/models`)
       .then(r => r.json())
       .then(d => d.ok && setLiveData(d.models))
       .catch(() => {})
