@@ -5,6 +5,7 @@
       "root": ".",
       "runtime": "node",
       "entrypoint": "server.js",
+      "buildCommand": null,
       "bindings": [
         {
           "type": "service",
