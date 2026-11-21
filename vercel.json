@@ -4,6 +4,7 @@
     "app": {
       "root": ".",
       "runtime": "node",
+      "entrypoint": "server.js",
       "bindings": [
         {
           "type": "service",
@@ -15,7 +16,8 @@
     },
     "backend": {
       "root": "backend",
-      "framework": "express"
+      "framework": "express",
+      "entrypoint": "server.js"
     },
     "frontend": {
       "root": "frontend",
