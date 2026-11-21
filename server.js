@@ -273,7 +273,11 @@ async function analyzeImage(buffer, originalName) {
     elaDiscrepancy: Math.round(elaScore),
     spectralNoise: Math.round(entropyScore),
     facialSymmetry: Math.round(channelScore),
-    exifIntegrity: exifScore
+    exifIntegrity: exifScore,
+    ela: Math.round(elaScore),
+    noise: Math.round(entropyScore),
+    entropy: Math.round(channelScore),
+    exif: exifScore
   };
 
   return {
@@ -424,7 +428,11 @@ app.post('/api/analyze', upload.single('image'), async (req, res) => {
           elaDiscrepancy: isAI ? Math.max(78, heuristic.metrics.elaDiscrepancy) : Math.min(20, heuristic.metrics.elaDiscrepancy),
           spectralNoise: isAI ? Math.max(74, heuristic.metrics.spectralNoise) : Math.min(18, heuristic.metrics.spectralNoise),
           facialSymmetry: isAI ? Math.max(80, heuristic.metrics.facialSymmetry) : Math.min(42, heuristic.metrics.facialSymmetry),
-          exifIntegrity: isAI ? Math.min(25, heuristic.metrics.exifIntegrity) : Math.max(75, heuristic.metrics.exifIntegrity)
+          exifIntegrity: isAI ? Math.min(25, heuristic.metrics.exifIntegrity) : Math.max(75, heuristic.metrics.exifIntegrity),
+          ela: isAI ? Math.max(78, heuristic.metrics.elaDiscrepancy) : Math.min(20, heuristic.metrics.elaDiscrepancy),
+          noise: isAI ? Math.max(74, heuristic.metrics.spectralNoise) : Math.min(18, heuristic.metrics.spectralNoise),
+          entropy: isAI ? Math.max(80, heuristic.metrics.facialSymmetry) : Math.min(42, heuristic.metrics.facialSymmetry),
+          exif: isAI ? Math.min(25, heuristic.metrics.exifIntegrity) : Math.max(75, heuristic.metrics.exifIntegrity)
         },
         gemini,
         analysis: heuristic.analysis

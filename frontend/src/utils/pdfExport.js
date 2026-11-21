@@ -192,10 +192,10 @@ export function generatePDFReport(scanData) {
 
   const m = scanData.metrics || {}
   const rows = [
-    { name: 'Error Level Analysis (ELA) Variance', weight: '30%', val: `${m.elaDiscrepancy || 75}%`, risk: isDeepfake ? 'CRITICAL' : 'LOW' },
-    { name: 'Fourier FFT High-Frequency Spectrum', weight: '25%', val: `${m.spectralNoise || 68}%`, risk: isDeepfake ? 'HIGH' : 'NORMAL' },
-    { name: 'Channel Entropy & Pixel Uniformity',  weight: '20%', val: `${m.facialSymmetry || 82}%`, risk: isDeepfake ? 'ANOMALOUS' : 'BALANCED' },
-    { name: 'EXIF Hardware & Sensor Noise Trace',  weight: '15%', val: `${m.exifIntegrity || 40}%`, risk: isDeepfake ? 'ANOMALOUS' : 'VALID' },
+    { name: 'Error Level Analysis (ELA) Variance', weight: '30%', val: `${m.elaDiscrepancy ?? m.ela ?? 75}%`, risk: isDeepfake ? 'CRITICAL' : 'LOW' },
+    { name: 'Fourier FFT High-Frequency Spectrum', weight: '25%', val: `${m.spectralNoise ?? m.noise ?? 68}%`, risk: isDeepfake ? 'HIGH' : 'NORMAL' },
+    { name: 'Channel Entropy & Pixel Uniformity',  weight: '20%', val: `${m.facialSymmetry ?? m.entropy ?? 82}%`, risk: isDeepfake ? 'ANOMALOUS' : 'BALANCED' },
+    { name: 'EXIF Hardware & Sensor Noise Trace',  weight: '15%', val: `${m.exifIntegrity ?? m.exif ?? 40}%`, risk: isDeepfake ? 'ANOMALOUS' : 'VALID' },
     { name: 'Gemini Multimodal Vision Inspector',  weight: '10%', val: `${score}%`, risk: isDeepfake ? 'SYNTHETIC' : 'AUTHENTIC' }
   ]
 
